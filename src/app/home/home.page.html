@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Películas</ion-title>
+    <div slot="end" class="favorites-header-controls">
+      <ion-badge class="favorites-count-badge">Favoritos: {{ favoritesCount() }}</ion-badge>
+      <ion-badge class="favorites-toggle" (click)="toggleFavoritesView()">
+        {{ showOnlyFavorites ? 'Ver búsqueda' : 'Ver favoritos' }}
+      </ion-badge>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-searchbar
+    [value]="searchTerm()"
+    (ionInput)="onSearch($event)"
+    placeholder="Buscar película">
+  </ion-searchbar>
+
+  @if (!showOnlyFavorites && searchTerm().length >= 3 && !searchError()) {
+    <div class="results-summary">Resultados: {{ totalResults() }}</div>
+  }
+
+  @if (!showOnlyFavorites && isSearching()) {
+    <ion-text color="medium" class="status-message">Buscando películas...</ion-text>
+  }
+
+  @if (!showOnlyFavorites && searchError(); as error) {
+    <ion-text color="danger" class="status-message">{{ error }}</ion-text>
+  }
+
+  @if (showOnlyFavorites) {
+    <div class="section-title">Mis favoritos</div>
+    @if (favoritesCount() === 0) {
+      <ion-text color="medium" class="empty-favorites">Aún no tienes favoritos.</ion-text>
+    } @else {
+      <ion-list>
+        @for (favorite of favorites(); track favorite.imdbID) {
+          <ion-item class="movie-item" button detail="true" (click)="openMovieDetail(favorite.imdbID)">
+            <ion-thumbnail slot="start" class="movie-thumb">
+              <img
+                [src]="getPosterUrl(favorite.Poster)"
+                [alt]="favorite.Title"
+                loading="lazy"
+                decoding="async"
+                (error)="onImageError($event)" />
+            </ion-thumbnail>
+
+            <ion-label>
+              <h2>{{ favorite.Title }}</h2>
+              <p>{{ favorite.Year }}</p>
+              <ion-text class="favorite-state favorite-state-active">★ Favorita</ion-text>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  } @else {
+    @if (!isSearching() && !searchError() && searchTerm().length >= 3 && totalResults() === 0) {
+      <ion-text color="medium" class="status-message">No se encontraron películas.</ion-text>
+    } @else {
+      <ion-list>
+        @for (movie of movies(); track movie.imdbID) {
+          <ion-item class="movie-item" button detail="true" (click)="openMovieDetail(movie.imdbID)">
+            <ion-thumbnail slot="start" class="movie-thumb">
+              <img
+                [src]="getPosterUrl(movie.Poster)"
+                [alt]="movie.Title"
+                loading="lazy"
+                decoding="async"
+                (error)="onImageError($event)" />
+            </ion-thumbnail>
+
+            <ion-label>
+              <h2>{{ movie.Title }}</h2>
+              <p>{{ movie.Year }}</p>
+              <ion-text class="favorite-state" [class.favorite-state-active]="isFavorite(movie.imdbID)">
+                {{ isFavorite(movie.imdbID) ? '★ Favorita' : '☆ Sin marcar' }}
+              </ion-text>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  }
+</ion-content>
