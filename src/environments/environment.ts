@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiKeyOMDb: '284d5d96',
+  apiKeyOMDb: 'YOUR_API_KEY_HERE',
 };
 
 /*
